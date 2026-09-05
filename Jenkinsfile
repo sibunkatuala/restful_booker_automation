@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     stages {
@@ -22,7 +21,8 @@ pipeline {
                 docker run --rm -v "%CD%:/app" restful-booker-automation ^
                 pytest tests/api -v -s ^
                 --html=report.html ^
-                --self-contained-html
+                --self-contained-html ^
+                --alluredir=allure-results
                 '''
             }
         }
@@ -31,6 +31,7 @@ pipeline {
     post {
 
         always {
+
             publishHTML([
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
@@ -38,6 +39,10 @@ pipeline {
                 reportDir: '.',
                 reportFiles: 'report.html',
                 reportName: 'API Automation Report'
+            ])
+
+            allure([
+                results: [[path: 'allure-results']]
             ])
         }
 
